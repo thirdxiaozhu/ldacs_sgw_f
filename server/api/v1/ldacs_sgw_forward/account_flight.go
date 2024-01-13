@@ -2,19 +2,18 @@ package ldacs_sgw_forward
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/ldacs_sgw_forward"
-    ldacs_sgw_forwardReq "github.com/flipped-aurora/gin-vue-admin/server/model/ldacs_sgw_forward/request"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/service"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/ldacs_sgw_forward"
+	ldacs_sgw_forwardReq "github.com/flipped-aurora/gin-vue-admin/server/model/ldacs_sgw_forward/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type AccontFlightApi struct {
 }
 
 var accountFlightService = service.ServiceGroupApp.Ldacs_sgw_forwardServiceGroup.AccontFlightService
-
 
 // CreateAccontFlight 创建航班
 // @Tags AccontFlight
@@ -26,7 +25,7 @@ var accountFlightService = service.ServiceGroupApp.Ldacs_sgw_forwardServiceGroup
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"创建成功"}"
 // @Router /accountFlight/createAccontFlight [post]
 func (accountFlightApi *AccontFlightApi) CreateAccontFlight(c *gin.Context) {
-	var accountFlight ldacs_sgw_forward.AccontFlight
+	var accountFlight ldacs_sgw_forward.AccountFlight
 	err := c.ShouldBindJSON(&accountFlight)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -34,7 +33,7 @@ func (accountFlightApi *AccontFlightApi) CreateAccontFlight(c *gin.Context) {
 	}
 
 	if err := accountFlightService.CreateAccontFlight(&accountFlight); err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
 	} else {
 		response.OkWithMessage("创建成功", c)
@@ -53,7 +52,7 @@ func (accountFlightApi *AccontFlightApi) CreateAccontFlight(c *gin.Context) {
 func (accountFlightApi *AccontFlightApi) DeleteAccontFlight(c *gin.Context) {
 	id := c.Query("ID")
 	if err := accountFlightService.DeleteAccontFlight(id); err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
 	} else {
 		response.OkWithMessage("删除成功", c)
@@ -72,7 +71,7 @@ func (accountFlightApi *AccontFlightApi) DeleteAccontFlight(c *gin.Context) {
 func (accountFlightApi *AccontFlightApi) DeleteAccontFlightByIds(c *gin.Context) {
 	ids := c.QueryArray("ids[]")
 	if err := accountFlightService.DeleteAccontFlightByIds(ids); err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败", c)
 	} else {
 		response.OkWithMessage("批量删除成功", c)
@@ -89,7 +88,7 @@ func (accountFlightApi *AccontFlightApi) DeleteAccontFlightByIds(c *gin.Context)
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"更新成功"}"
 // @Router /accountFlight/updateAccontFlight [put]
 func (accountFlightApi *AccontFlightApi) UpdateAccontFlight(c *gin.Context) {
-	var accountFlight ldacs_sgw_forward.AccontFlight
+	var accountFlight ldacs_sgw_forward.AccountFlight
 	err := c.ShouldBindJSON(&accountFlight)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -97,7 +96,7 @@ func (accountFlightApi *AccontFlightApi) UpdateAccontFlight(c *gin.Context) {
 	}
 
 	if err := accountFlightService.UpdateAccontFlight(accountFlight); err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
 		response.OkWithMessage("更新成功", c)
@@ -116,7 +115,7 @@ func (accountFlightApi *AccontFlightApi) UpdateAccontFlight(c *gin.Context) {
 func (accountFlightApi *AccontFlightApi) FindAccontFlight(c *gin.Context) {
 	id := c.Query("ID")
 	if reaccountFlight, err := accountFlightService.GetAccontFlight(id); err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {
 		response.OkWithData(gin.H{"reaccountFlight": reaccountFlight}, c)
@@ -140,14 +139,14 @@ func (accountFlightApi *AccontFlightApi) GetAccontFlightList(c *gin.Context) {
 		return
 	}
 	if list, total, err := accountFlightService.GetAccontFlightInfoList(pageInfo); err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败", c)
-    } else {
-        response.OkWithDetailed(response.PageResult{
-            List:     list,
-            Total:    total,
-            Page:     pageInfo.Page,
-            PageSize: pageInfo.PageSize,
-        }, "获取成功", c)
-    }
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
 }
