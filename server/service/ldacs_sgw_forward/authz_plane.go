@@ -1,9 +1,12 @@
 package ldacs_sgw_forward
 
 import (
+	"fmt"
+
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/ldacs_sgw_forward"
-    ldacs_sgw_forwardReq "github.com/flipped-aurora/gin-vue-admin/server/model/ldacs_sgw_forward/request"
+	ldacs_sgw_forwardReq "github.com/flipped-aurora/gin-vue-admin/server/model/ldacs_sgw_forward/request"
+	"gorm.io/gorm"
 )
 
 type AuthzPlaneService struct {
@@ -18,65 +21,98 @@ func (authzPlaneService *AuthzPlaneService) CreateAuthzPlane(authzPlane *ldacs_s
 
 // DeleteAuthzPlane 删除飞机业务授权记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (authzPlaneService *AuthzPlaneService)DeleteAuthzPlane(id string) (err error) {
-	err = global.GVA_DB.Delete(&ldacs_sgw_forward.AuthzPlane{},"id = ?",id).Error
+func (authzPlaneService *AuthzPlaneService) DeleteAuthzPlane(id string) (err error) {
+	err = global.GVA_DB.Delete(&ldacs_sgw_forward.AuthzPlane{}, "id = ?", id).Error
 	return err
 }
 
 // DeleteAuthzPlaneByIds 批量删除飞机业务授权记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (authzPlaneService *AuthzPlaneService)DeleteAuthzPlaneByIds(ids []string) (err error) {
-	err = global.GVA_DB.Delete(&[]ldacs_sgw_forward.AuthzPlane{},"id in ?",ids).Error
+func (authzPlaneService *AuthzPlaneService) DeleteAuthzPlaneByIds(ids []string) (err error) {
+	err = global.GVA_DB.Delete(&[]ldacs_sgw_forward.AuthzPlane{}, "id in ?", ids).Error
 	return err
 }
 
 // UpdateAuthzPlane 更新飞机业务授权记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (authzPlaneService *AuthzPlaneService)UpdateAuthzPlane(authzPlane ldacs_sgw_forward.AuthzPlane) (err error) {
+func (authzPlaneService *AuthzPlaneService) UpdateAuthzPlane(authzPlane ldacs_sgw_forward.AuthzPlane) (err error) {
 	err = global.GVA_DB.Save(&authzPlane).Error
 	return err
 }
 
 // GetAuthzPlane 根据id获取飞机业务授权记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (authzPlaneService *AuthzPlaneService)GetAuthzPlane(id string) (authzPlane ldacs_sgw_forward.AuthzPlane, err error) {
+func (authzPlaneService *AuthzPlaneService) GetAuthzPlane(id string) (authzPlane ldacs_sgw_forward.AuthzPlane, err error) {
 	err = global.GVA_DB.Where("id = ?", id).First(&authzPlane).Error
 	return
 }
 
 // GetAuthzPlaneInfoList 分页获取飞机业务授权记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (authzPlaneService *AuthzPlaneService)GetAuthzPlaneInfoList(info ldacs_sgw_forwardReq.AuthzPlaneSearch) (list []ldacs_sgw_forward.AuthzPlane, total int64, err error) {
+func (authzPlaneService *AuthzPlaneService) GetAuthzPlaneInfoList(info ldacs_sgw_forwardReq.AuthzPlaneSearch) (list []ldacs_sgw_forward.AuthzPlane, total int64, err error) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-    // 创建db
+	// 创建db
 	db := global.GVA_DB.Model(&ldacs_sgw_forward.AuthzPlane{})
-    var authzPlanes []ldacs_sgw_forward.AuthzPlane
-    // 如果有条件搜索 下方会自动创建搜索语句
-    if info.StartCreatedAt !=nil && info.EndCreatedAt !=nil {
-     db = db.Where("created_at BETWEEN ? AND ?", info.StartCreatedAt, info.EndCreatedAt)
-    }
-    if info.Authz_planeId != nil {
-        db = db.Where("authz_plane_id = ?",info.Authz_planeId)
-    }
-    if info.Authz_flight != nil {
-        db = db.Where("authz_flight = ?",info.Authz_flight)
-    }
-    if info.Authz_autz != nil {
-        db = db.Where("authz_autz = ?",info.Authz_autz)
-    }
-    if info.Authz_state != nil {
-        db = db.Where("authz_state = ?",info.Authz_state)
-    }
+	var authzPlanes []ldacs_sgw_forward.AuthzPlane
+	// 如果有条件搜索 下方会自动创建搜索语句
+	if info.StartCreatedAt != nil && info.EndCreatedAt != nil {
+		db = db.Where("created_at BETWEEN ? AND ?", info.StartCreatedAt, info.EndCreatedAt)
+	}
+	if info.Authz_planeId != nil {
+		db = db.Where("authz_plane_id = ?", info.Authz_planeId)
+	}
+	if info.Authz_flight != nil {
+		db = db.Where("authz_flight = ?", info.Authz_flight)
+	}
+	if info.Authz_autz != nil {
+		db = db.Where("authz_autz = ?", info.Authz_autz)
+	}
+	if info.Authz_state != nil {
+		db = db.Where("authz_state = ?", info.Authz_state)
+	}
 	err = db.Count(&total).Error
-	if err!=nil {
-    	return
-    }
+	if err != nil {
+		return
+	}
 
 	if limit != 0 {
-       db = db.Limit(limit).Offset(offset)
-    }
-	
+		db = db.Limit(limit).Offset(offset)
+	}
+
 	err = db.Find(&authzPlanes).Error
-	return  authzPlanes, total, err
+	return authzPlanes, total, err
+}
+func (authzPlaneService *AuthzPlaneService) GetRouteOptions() (*ldacs_sgw_forward.AuthzOptions, error) {
+	db := global.GVA_DB
+	var authzOpts ldacs_sgw_forward.AuthzOptions
+	var find *gorm.DB
+
+	for {
+		find = db.Order("ID asc").Find(&authzOpts.AuthzAuthzs)
+		if find.Error != nil {
+			break
+		}
+		find = db.Order("ID asc").Find(&authzOpts.AuthzPlaneIds)
+		if find.Error != nil {
+			break
+		}
+		find = db.Order("ID asc").Find(&authzOpts.AuthzFlights)
+		if find.Error != nil {
+			break
+		}
+		return &authzOpts, find.Error
+	}
+
+	fmt.Printf("find查询失败，err：%v\n", find.Error)
+
+	return nil, find.Error
+}
+
+func (authzPlaneService *AuthzPlaneService) StateChange(authzPlane *ldacs_sgw_forward.AuthzPlane) (err error) {
+	db := global.GVA_DB.Model(&ldacs_sgw_forward.AuthzPlane{})
+	err = db.Where("id = ?", authzPlane.ID).Update("state", authzPlane.AuthzState).Error
+
+	fmt.Printf("err: %v\n", err)
+	return err
 }
