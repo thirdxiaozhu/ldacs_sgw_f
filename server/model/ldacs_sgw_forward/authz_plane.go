@@ -6,9 +6,9 @@ import (
 )
 
 type AuthzPlaneMulti struct {
-	AuthzPlaneId int   `json:"AuthzPlaneId"  `
-	AuthzFlight  int   `json:"AuthzFlight" `
-	AuthzAuthzs  []int `json:"AuthzAuthzs" `
+	AuthzPlaneId int   `json:"authz_PlaneId"  `
+	AuthzFlight  int   `json:"authz_flight" `
+	AuthzAuthzs  []int `json:"authz_authz" `
 }
 
 // 飞机业务授权 结构体  AuthzPlane

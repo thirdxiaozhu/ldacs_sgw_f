@@ -42,6 +42,8 @@ func (authzPlaneApi *AuthzPlaneApi) CreateAuthzPlane(c *gin.Context) {
 			AuthzFlight:  authzPlaneMulti.AuthzFlight,
 			AuthzAuthz:   authz_n,
 		}
+
+		fmt.Println(authzPlaneSingal.AuthzPlaneId)
 		if err := authzPlaneService.CreateAuthzPlane(&authzPlaneSingal); err != nil {
 			global.GVA_LOG.Error("创建失败!", zap.Error(err))
 			response.FailWithMessage("创建失败", c)
@@ -161,14 +163,14 @@ func (authzPlaneApi *AuthzPlaneApi) GetAuthzPlaneList(c *gin.Context) {
 	}
 }
 
-func (authzPlaneApi *AuthzPlaneApi) GetRouteOptions(c *gin.Context) {
+func (authzPlaneApi *AuthzPlaneApi) GetOptions(c *gin.Context) {
 	//err := c.ShouldBindQuery(&troq)
 	//if err != nil {
 	//	response.FailWithMessage(err.Error(), c)
 	//	return
 	//}
 
-	if opts, err := authzPlaneService.GetRouteOptions(); err != nil {
+	if opts, err := authzPlaneService.GetOptions(); err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
 	} else {

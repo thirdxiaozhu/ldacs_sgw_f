@@ -95,3 +95,20 @@ export const getAuthzPlaneList = (params) => {
     params
   })
 }
+
+
+export const getOptions = (params) => {
+  return service({
+    url: '/authzPlane/getOptions',
+    method: 'get',
+    params
+  })
+}
+
+export const setStateChange = (data) => {
+  return service({
+    url: '/authzPlane/setStateChange',
+    method: 'put',
+    data
+  })
+}

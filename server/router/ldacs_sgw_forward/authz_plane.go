@@ -22,7 +22,7 @@ func (s *AuthzPlaneRouter) InitAuthzPlaneRouter(Router *gin.RouterGroup) {
 		authzPlaneRouter.PUT("setStateChange", authzPlaneApi.SetStateChange)                  //启用状态更新
 	}
 	{
-		authzPlaneRouterWithoutRecord.GET("getRouteOptions", authzPlaneApi.GetRouteOptions)     //获取选项
+		authzPlaneRouterWithoutRecord.GET("getOptions", authzPlaneApi.GetOptions)               //获取选项
 		authzPlaneRouterWithoutRecord.GET("findAuthzPlane", authzPlaneApi.FindAuthzPlane)       // 根据ID获取飞机业务授权
 		authzPlaneRouterWithoutRecord.GET("getAuthzPlaneList", authzPlaneApi.GetAuthzPlaneList) // 获取飞机业务授权列表
 	}

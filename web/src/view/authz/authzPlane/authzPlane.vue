@@ -25,9 +25,9 @@
              <el-input v-model.number="searchInfo.authz_flight" placeholder="搜索条件" />
 
         </el-form-item>
-        <el-form-item label="权限" prop="authz_autz">
+        <el-form-item label="权限" prop="authz_authz">
             
-             <el-input v-model.number="searchInfo.authz_autz" placeholder="搜索条件" />
+             <el-input v-model.number="searchInfo.authz_authz" placeholder="搜索条件" />
 
         </el-form-item>
         <el-form-item label="授权状态" prop="authz_state">
@@ -67,10 +67,24 @@
         <el-table-column align="left" label="日期" width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="被授权飞机" prop="authz_PlaneId" width="120" />
-        <el-table-column align="left" label="被授权航班" prop="authz_flight" width="120" />
-        <el-table-column align="left" label="权限" prop="authz_autz" width="120" />
-        <el-table-column align="left" label="授权状态" prop="authz_state" width="120" />
+        <el-table-column align="left" label="被授权飞机" prop="plane_id.plane_id" width="120" />
+        <el-table-column align="left" label="被授权航班" prop="flight.flight" width="120" />
+        <el-table-column align="left" label="权限" prop="authz.authz_name" width="120" />
+        <el-table-column align="left" label="授权状态" prop="authz_state" width="120">
+          <template #default="scope">
+            <!-- <el-switch @change="stateChange(scope.row)"  model-value="scope.row.state"             :active-value="1"
+            :inactive-value="0" active-color="#13ce66" inactive-color="#ff4949">
+            </el-switch> -->
+            <el-switch
+              @change="stateChange(scope.row)"
+              v-model="scope.row.authz_state"
+              :active-value="1"
+              :inactive-value="0"
+              active-color="#13ce66"
+              inactive-color="#ff4949">
+            </el-switch>
+          </template>
+          </el-table-column>
         <el-table-column align="left" label="操作" min-width="120">
             <template #default="scope">
             <el-button type="primary" link class="table-button" @click="getDetails(scope.row)">
@@ -94,30 +108,33 @@
             />
         </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" :title="type==='create'?'添加':'修改'" destroy-on-close>
-      <el-scrollbar height="500px">
-          <el-form :model="formData" label-position="right" ref="elFormRef" :rules="rule" label-width="80px">
-            <el-form-item label="被授权飞机:"  prop="authz_PlaneId" >
-              <el-input v-model.number="formData.authz_PlaneId" :clearable="false" placeholder="请输入被授权飞机" />
-            </el-form-item>
-            <el-form-item label="被授权航班:"  prop="authz_flight" >
-              <el-input v-model.number="formData.authz_flight" :clearable="false" placeholder="请输入被授权航班" />
-            </el-form-item>
-            <el-form-item label="权限:"  prop="authz_autz" >
-              <el-input v-model.number="formData.authz_autz" :clearable="false" placeholder="请输入权限" />
-            </el-form-item>
-            <el-form-item label="授权状态:"  prop="authz_state" >
-              <el-input v-model.number="formData.authz_state" :clearable="false" placeholder="请输入授权状态" />
-            </el-form-item>
-          </el-form>
-      </el-scrollbar>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="closeDialog">取 消</el-button>
-          <el-button type="primary" @click="enterDialog">确 定</el-button>
-        </div>
-      </template>
-    </el-dialog>
+      <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" :title="type === 'create' ? '添加' : '修改'" destroy-on-close>
+        <el-scrollbar height="500px">
+            <el-form :model="formData" label-position="right" ref="elFormRef" :rules="rule" label-width="80px">
+              <el-form-item label="被授权飞机:"  prop="authz_PlaneId" >
+                <el-select v-model="formData.authz_PlaneId" filterable  placeholder="请选择" style="width:100%" :clearable="true" >
+                  <el-option v-for="(item, key) in plane_opts" :key="key" :label="item.plane_id" :value="item.ID" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="被授权航班:"  prop="authz_flight" >
+                <el-select v-model="formData.authz_flight" filterable  placeholder="请选择" style="width:100%" :clearable="true" >
+                  <el-option v-for="(item,key) in flight_opts" :key="key" :label="item.flight" :value="item.ID" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="权限:"  prop="authz_authz" >
+                  <el-select v-model="formData.authz_authz" filterable multiple placeholder="请选择" style="width:100%" :clearable="true" >
+                    <el-option v-for="(item,key) in auth_opts" :key="key" :label="item.authz_name" :value="item.ID" />
+                  </el-select>
+              </el-form-item>
+            </el-form>
+        </el-scrollbar>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="closeDialog">取 消</el-button>
+            <el-button type="primary" @click="enterDialog">确 定</el-button>
+          </div>
+        </template>
+      </el-dialog>
 
     <el-dialog v-model="detailShow" style="width: 800px" lock-scroll :before-close="closeDetailShow" title="查看详情" destroy-on-close>
       <el-scrollbar height="550px">
@@ -129,7 +146,7 @@
                         {{ formData.authz_flight }}
                 </el-descriptions-item>
                 <el-descriptions-item label="权限">
-                        {{ formData.authz_autz }}
+                        {{ formData.authz_authz }}
                 </el-descriptions-item>
                 <el-descriptions-item label="授权状态">
                         {{ formData.authz_state }}
@@ -147,7 +164,9 @@ import {
   deleteAuthzPlaneByIds,
   updateAuthzPlane,
   findAuthzPlane,
-  getAuthzPlaneList
+  getAuthzPlaneList,
+  getOptions,
+  setStateChange,
 } from '@/api/authzPlane'
 
 // 全量引入格式化工具 请按需保留
@@ -163,37 +182,36 @@ defineOptions({
 const formData = ref({
         authz_PlaneId: 0,
         authz_flight: 0,
-        authz_autz: 0,
-        authz_state: 0,
+        authz_authz: 0,
         })
 
 
 // 验证规则
 const rule = reactive({
-               authz_PlaneId : [{
-                   required: true,
-                   message: '',
-                   trigger: ['input','blur'],
-               },
-              ],
-               authz_flight : [{
-                   required: true,
-                   message: '',
-                   trigger: ['input','blur'],
-               },
-              ],
-               authz_autz : [{
-                   required: true,
-                   message: '',
-                   trigger: ['input','blur'],
-               },
-              ],
-               authz_state : [{
-                   required: true,
-                   message: '',
-                   trigger: ['input','blur'],
-               },
-              ],
+              // authz_PlaneId : [{
+              //     required: true,
+              //     message: '',
+              //     trigger: ['input','blur'],
+              // },
+              //],
+              // authz_flight : [{
+              //     required: true,
+              //     message: '',
+              //     trigger: ['input','blur'],
+              // },
+              //],
+              // authz_authz : [{
+              //     required: true,
+              //     message: '',
+              //     trigger: ['input','blur'],
+              // },
+              //],
+              // authz_state : [{
+              //     required: true,
+              //     message: '',
+              //     trigger: ['input','blur'],
+              // },
+              //],
 })
 
 const searchRule = reactive({
@@ -259,14 +277,24 @@ const getTableData = async() => {
     page.value = table.data.page
     pageSize.value = table.data.pageSize
   }
+  console.log(tableData.value)
 }
 
 getTableData()
 
 // ============== 表格控制部分结束 ===============
-
+const plane_opts = ref([])
+const flight_opts = ref([])
+const auth_opts = ref([])
 // 获取需要的字典 可能为空 按需保留
 const setOptions = async () =>{
+  const res = await getOptions()
+  if (res.code === 0){
+    //options.value = res.data.options
+    plane_opts.value = res.data.options.plane_ids
+    flight_opts.value = res.data.options.flights
+    auth_opts.value = res.data.options.authzs
+  }
 }
 
 // 获取需要的字典 可能为空 按需保留
@@ -337,6 +365,28 @@ const updateAuthzPlaneFunc = async(row) => {
 }
 
 
+const stateChange = async(row) =>{
+  console.log(row)
+  const res = await setStateChange(row)
+  console.log(res)
+  if (res.code === 0) {
+       if(res.data.state == 0){
+        ElMessage({
+                type: 'error',
+                message: '授权取消'
+            })
+       }else{
+        ElMessage({
+                type: 'success',
+                message: '授权启动'
+            })
+       }
+        getTableData()
+    } 
+}
+
+
+
 // 删除行
 const deleteAuthzPlaneFunc = async (row) => {
     const res = await deleteAuthzPlane({ ID: row.ID })
@@ -383,7 +433,7 @@ const closeDetailShow = () => {
   formData.value = {
           authz_PlaneId: 0,
           authz_flight: 0,
-          authz_autz: 0,
+          authz_authz: 0,
           authz_state: 0,
           }
 }
@@ -401,7 +451,7 @@ const closeDialog = () => {
     formData.value = {
         authz_PlaneId: 0,
         authz_flight: 0,
-        authz_autz: 0,
+        authz_authz: 0,
         authz_state: 0,
         }
 }
